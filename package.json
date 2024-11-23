@@ -1,0 +1,16 @@
+{
+  "name": "taskmanager",
+  "version": "1.0.0",
+  "description": "A CLI task manager",
+  "main": "manager.js",
+  "scripts": {
+    "test": "node manager.js"
+  },
+  "author": "JPugh020",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "prompt-sync": "^4.2.0",
+    "uniqid": "^5.4.0"
+  }
+}
