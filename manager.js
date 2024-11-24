@@ -1,7 +1,7 @@
 import fs from "fs";
-import "prompt-sync";
 import PromptSync from "prompt-sync";
 import uniqid from "uniqid";
+import figlet from "figlet";
 /* I know the prompt said not to use external libraries, 
 but I'm already having to use them with mongoose and stuff 
 so I should be getting more practice anyway.  */
@@ -20,30 +20,14 @@ const Task = {
     "updatedAt": Date
 }
 
-//lil delay function
-function sleep(func, ms) {
-    return new Promise(resolve => {setTimeout(func, ms);});
-}
 
-//artsy function
-const art = (num, msg) => {
-    let c = 1;
-    while (c <= num){
-        console.log("*".repeat(c));
-        c++;
-    }
-    console.log("*".repeat(c) + " " + msg);
-    while (c >= 1){
-        console.log("*".repeat(c));
-        c--;
-    }
-}
+
 
 //CRUD functions
 
 const ListAll = () => {
     let tasks = JSON.parse(fs.readFileSync("./tasks.json"));
-    for (const task in tasks){
+    for (let task in tasks){
         console.log(tasks[task]);
     }
     prompt("Press any key to continue");
@@ -67,8 +51,8 @@ const AddTask = () => {
         addAnother = (prompt("Would you like to add another? (y/n):  ") === 'y');//Easy true/false switch. Could be improved for better error handling I guess
     }
 
-    fs.writeFileSync("tasks.json", JSON.stringify(tasks)); 
-    art(5, "Task Created!");
+    fs.writeFileSync("tasks.json", JSON.stringify(tasks));
+    console.log(figlet.textSync("Task(s) Created!")); 
     prompt("Press any key to continue");
 }
 
@@ -77,33 +61,96 @@ const EditTask = () => {
     console.clear();
     let tasks = fs.existsSync("./tasks.json") ? JSON.parse(fs.readFileSync("./tasks.json")) : [];
     let search = prompt("Please enter the Task ID or Description that you would like to search for: ");
+    let att = " "
+    let another = false;
+    while (!another) {
+        for (let task in tasks){
+            if (tasks[task].id == search || tasks[task].description == search){
+                console.log(tasks[task]);
+                att = parseInt(prompt("What would you like to edit about this task? (1 for Description, 2 for Status):  "));
+                if (att == 1){
+                    tasks[task].description = prompt("Please enter the description update: ");
+                    tasks[task].updatedAt = Date.now();
+                    console.log(figlet.textSync("Task Edited!"))
+                    
+                }
+                else if (att == 2){
+                    tasks[task].status = prompt("Please enter the description update (Pending // In-Progress // Complete): ");
+                    tasks[task].updatedAt = Date.now();
+                    console.log(figlet.textSync("Task Edited!"))
+                }
+            }
+            
+            
+        }
+        another = (prompt("Would you like to add another? (y/n):  ") === 'n');
+    }
+    fs.writeFileSync("tasks.json", JSON.stringify(tasks));
+    console.clear();
+    
+
+    
     
 
 }
 
 const DeleteTask = () => {
-    console.table()
+    console.clear();
+    let tasks = fs.existsSync("./tasks.json") ? JSON.parse(fs.readFileSync("./tasks.json")) : [];
+    let search = prompt("Please enter the Task ID or Description that you would like to search for: ");
+    let att = " ";
+    let another = false;
+    let newList = [];
+    while (!another) {
+        for (let task in tasks){
+            if (tasks[task].id == search || tasks[task].description == search){
+                console.log(tasks[task]);
+                att = parseInt(prompt("Enter 1 to delete this task, or 2 to cancel:  "));
+                if (att == 1){
+                    tasks.splice(task, 1);
+                    console.log(figlet.textSync("Task Deleted"))
+                    
+                }
+                else if (att == 2){
+                    break;
+                }
+            }
+            
+            
+        }
+        another = (prompt("Would you like to add another? (y/n):  ") === 'n');
+    }
+    fs.writeFileSync("tasks.json", JSON.stringify(tasks));
+    console.clear();
 }
 
 const ListComp = () => {
-    console.table()
+    console.clear();
+    let tasks = JSON.parse(fs.readFileSync("./tasks.json"));
+    for (let task in tasks){
+        if (tasks[task].status == 'Complete') {
+            console.log(tasks[task])
+        }
+    }
 }
 
 const ListInProg = () => {
-    console.table()
+    console.clear();
+    let tasks = JSON.parse(fs.readFileSync("./tasks.json"));
+    for (let task in tasks){
+        if (tasks[task].status == 'In-Progress') {
+            console.log(tasks[task])
+        }
+    }
 }
 
 const ListPending = () => {
     console.clear();
-    let tasks = fs.existsSync("./tasks.json") ? JSON.parse(fs.readFileSync("./tasks.json")) : [];
-    let pending = []
+    let tasks = JSON.parse(fs.readFileSync("./tasks.json"));
     for (let task in tasks){
-        if (tasks[task].status == "pending") {
-            pending.push(tasks[task]);
+        if (tasks[task].status == 'Pending') {
+            console.log(tasks[task])
         }
-    }
-    for (let task in pending) {
-        console.log(pending[task]);
     }
 }
 
@@ -114,7 +161,8 @@ const DeleteAll = () => {
         sure = (ans === 'y');
         if (sure){
             fs.unlinkSync("./tasks.json");
-            art(5, "Tasks Deleted!");
+            console.clear();
+            console.log(figlet.textSync("Tasks Deleted!"));
             prompt("Press any key to continue");
             console.clear();
         }
@@ -186,4 +234,3 @@ const Menu = () => {
 
 
 Menu();
-//sleep(Menu, 1500);
